@@ -25,6 +25,7 @@ faiss_indexes_gcs/*
 # Image backup folders
 image_data/*
 news_data/*
+news_data/01_disaster_Fire_3years.json
 
 # Generated mapping files
 *_mappings.json
