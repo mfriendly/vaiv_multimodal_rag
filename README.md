@@ -105,7 +105,10 @@ pip install -r requirements.txt
 ```
 
 ### 2. 데이터 준비
-
+* 뉴스 데이터 다운로드 [바로가기]()
+  * `news_data`에 저장
+* 이미지 데이터 다운로드 [바로가기](https://drive.google.com/drive/folders/1ik4d0H5QMBTW2ykWtDh-53aKvwxLtAan?usp=drive_link)
+  * `image_data`에 저장
 ```bash
 # 뉴스 데이터 (이미 포함됨)
 ls news_data/
