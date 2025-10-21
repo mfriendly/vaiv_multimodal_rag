@@ -23,7 +23,8 @@ faiss_indexes_gcs/*
 .milvus_lite_v2.db.lock
 
 # Image backup folders
-image_data/*/_backup/
+image_data/*
+news_data/*
 
 # Generated mapping files
 *_mappings.json
