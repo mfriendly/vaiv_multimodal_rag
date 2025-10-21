@@ -30,3 +30,38 @@ news_data/*
 *_mappings.json
 prepared_*.json
 manual_mappings*.json
+
+# Large files and models
+*.bin
+*.pt
+*.pth
+*.model
+*.safetensors
+*.h5
+*.hdf5
+*.onnx
+*.tflite
+*.pb
+
+# Large datasets
+*.csv
+*.json
+*.jsonl
+*.parquet
+*.arrow
+
+# Compressed files
+*.zip
+*.tar
+*.tar.gz
+*.7z
+*.rar
+
+# Media files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.mp3
+*.wav
+*.flac
