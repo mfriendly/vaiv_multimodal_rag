@@ -15,3 +15,17 @@ data/*
 heideltime
 *.log
 faiss_indexes_gcs/*
+
+# Milvus database files
+*.db
+*.db-shm
+*.db-wal
+.milvus_lite_v2.db.lock
+
+# Image backup folders
+image_data/*/_backup/
+
+# Generated mapping files
+*_mappings.json
+prepared_*.json
+manual_mappings*.json
