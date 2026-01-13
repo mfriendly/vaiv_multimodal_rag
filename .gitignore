@@ -1,68 +1,33 @@
-# Ignore all files in the faiss_indexes directory
-faiss_indexes/*
-logs/*
-vectordb_log_*
-.gradio
-.ipynb_checkpoints
-*.pyc
+# Database files
+db/*.db
+db/*.db.lock
+
+# Python cache
 __pycache__/
-*.pkl
-keys.py
-*.env
-*.log
-results/*
-data/*
-heideltime
-*.log
-faiss_indexes_gcs/*
+*.pyc
+*.pyo
+*.pyd
+.Python
 
-# Milvus database files
-*.db
-*.db-shm
-*.db-wal
-.milvus_lite_v2.db.lock
+# Virtual environments
+venv/
+env/
+ENV/
 
-# Image backup folders
-image_data/*
-news_data/*
-news_data/01_disaster_Fire_3years.json
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# Generated mapping files
-*_mappings.json
-prepared_*.json
-manual_mappings*.json
+# Jupyter
+.ipynb_checkpoints/
 
-# Large files and models
-*.bin
-*.pt
-*.pth
-*.model
-*.safetensors
-*.h5
-*.hdf5
-*.onnx
-*.tflite
-*.pb
+# OS
+.DS_Store
+Thumbs.db
 
-# Large datasets
-*.csv
-*.json
-*.jsonl
-*.parquet
-*.arrow
-
-# Compressed files
-*.zip
-*.tar
-*.tar.gz
-*.7z
-*.rar
-
-# Media files
-*.mp4
-*.avi
-*.mov
-*.mkv
-*.mp3
-*.wav
-*.flac
+# Legacy (optional - uncomment if you want to ignore legacy folder)
+# _legacy/
+data/news/01_disaster_Fire_3years.json

@@ -1,5 +1,7 @@
 # 🎯 RTRAG Milvus - Multimodal RAG System
 
+# 1. 재난 매뉴얼 DB 생성python build_text_db.py \  --input data/manuals/disaster_manuals.json \  --collection disaster_manual \  --db-file db/fire.db# 2. 뉴스 + 매뉴얼 동시 검색 (다중 컬렉션!)python run_search.py \  --mode text \  --query "화재 대피 요령" \  --collection fire_multimodal_demo,disaster_manual \  --db-file db/fire.db# 3. 매뉴얼만 검색 (topic 필터)python run_search.py \  --mode text \  --query "지진 발생 시 행동" \  --collection disaster_manual \  --db-file db/fire.db \  --topic earthquake
+
 FAISS에서 Milvus로 마이그레이션한 멀티모달 RAG 시스템입니다. 텍스트와 이미지를 함께 처리하여 더 풍부한 검색 경험을 제공합니다.
 
 ## 📚 목차
@@ -41,11 +43,34 @@ FAISS에서 Milvus로 마이그레이션한 멀티모달 RAG 시스템입니다.
 # 1. 패키지 설치
 pip install -r requirements.txt
 
-# 2. 멀티모달 데모 실행
+# 2. 멀티모달 데모 실행 (자동 DB 생성 + 검색 데모)
 bash demo_fire_multimodal.sh
 ```
 
-### 옵션 2: 텍스트 전용 RAG
+**이 스크립트가 자동으로 수행하는 작업:**
+- 화재 뉴스와 이미지 자동 매칭 (파일명 = doc_id)
+- 멀티모달 DB 생성
+- 텍스트/이미지/하이브리드 검색 데모
+
+### 옵션 2: 수동 멀티모달 DB 생성
+
+```bash
+# 클러스터된 뉴스만 사용
+python create_multimodal_db_from_images.py \
+  --news news_data/01_disaster_Fire_3years.json \
+  --images naver_news_images/fire \
+  --collection fire_multimodal \
+  --news-range fire_clustered \
+  --clustered-csv clustered_news.csv
+
+# 검색 예제
+python demo_multimodal_fire.py \
+  --mode text \
+  --collection fire_multimodal \
+  --query "화재 사건"
+```
+
+### 옵션 3: 텍스트 전용 RAG
 
 ```bash
 # 1. 데이터 변환
@@ -67,31 +92,28 @@ python milvus_lite_search_v2.py \
 ```
 RTRAG_milvus_share/
 ├── README.md                              # 이 파일
-├── README_MILVUS_MIGRATION.md             # 상세 마이그레이션 가이드
-├── PIPELINE_ARCHITECTURE.md               # 파이프라인 아키텍처
 ├── requirements.txt                       # Python 패키지 목록
-├── LICENSE                                # 라이센스
 │
 ├── 🎯 멀티모달 RAG (추천)
-│   ├── demo_fire_multimodal.sh           # 멀티모달 데모 실행
-│   ├── demo_multimodal_fire.py           # 뉴스 데이터 준비
-│   ├── multimodal_rag_v2.py               # 멀티모달 RAG 시스템
-│   ├── add_images_to_milvus.py           # 이미지 추가
-│   └── download_free_images.py           # 무료 이미지 다운로드
+│   ├── demo_fire_multimodal.sh                 # 🌟 원클릭 데모 스크립트
+│   ├── demo_multimodal_fire.py                 # 검색 데모 (텍스트/이미지/하이브리드)
+│   ├── create_multimodal_db_from_images.py    # 멀티모달 DB 생성 (파일명=doc_id)
+│   └── download_free_images.py                 # 무료 이미지 다운로드
 │
 ├── 🔧 텍스트 전용 RAG
-│   ├── convert_news_to_milvus_lite_v2.py # 뉴스 → Milvus Lite 변환
-│   ├── milvus_lite_search_v2.py          # Milvus Lite 검색
-│   └── milvus_rag_search.py              # Milvus Server 검색
+│   ├── convert_news_to_milvus_lite_v2.py      # 뉴스 → Milvus Lite 변환
+│   └── milvus_lite_search_v2.py               # Milvus Lite 검색
 │
 ├── 📊 데이터
-│   ├── news_data/                         # 뉴스 데이터
-│   └── image_data/                        # 이미지 데이터
+│   ├── news_data/                              # 뉴스 JSON 데이터
+│   │   └── 01_disaster_Fire_3years.json
+│   ├── naver_news_images/fire/                 # 뉴스 이미지 (파일명=doc_id)
+│   ├── query_image_data/fire/                  # 검색용 쿼리 이미지
+│   └── clustered_news.csv                      # 클러스터링된 뉴스 목록
 │
 └── 🛠️ 유틸리티
-    ├── run_metadata_v2.py                # 메타데이터 처리
-    ├── rename_images.py                  # 이미지 일괄 리네이밍 (fire1.jpg ~ fireN.jpg)
-    └── manual_image_matcher.py           # 뉴스-이미지 수동 매칭
+    ├── rename_images.py                        # 이미지 일괄 리네이밍
+    └── manual_image_matcher.py                 # 뉴스-이미지 수동 매칭
 ```
 
 ---
@@ -105,10 +127,7 @@ pip install -r requirements.txt
 ```
 
 ### 2. 데이터 준비
-* 뉴스 데이터 다운로드 [바로가기](https://drive.google.com/drive/folders/1gTBjmM6WwJcSsrGyEl1Cl7t_OG5CVi6s?usp=drive_link)
-  * `news_data`에 저장
-* 이미지 데이터 다운로드 [바로가기](https://drive.google.com/drive/folders/1ik4d0H5QMBTW2ykWtDh-53aKvwxLtAan?usp=drive_link)
-  * `image_data`에 저장
+
 ```bash
 # 뉴스 데이터 (이미 포함됨)
 ls news_data/
@@ -123,47 +142,61 @@ ls image_data/
 
 ### 1️⃣ 멀티모달 RAG (추천)
 
-#### 전체 데모 실행
+#### 🌟 원클릭 데모 실행
 ```bash
 bash demo_fire_multimodal.sh
 ```
 
-#### 단계별 실행
+**데모 스크립트가 자동으로 수행하는 작업:**
+1. 이미지 파일명(doc_id)으로 뉴스와 자동 매칭
+2. 멀티모달 DB 생성 (클러스터된 뉴스 사용)
+3. 텍스트/이미지/하이브리드 검색 시연
+
+#### 수동 DB 생성 및 검색
+
+**1. 멀티모달 DB 생성**
 ```bash
-# 1. 데이터 준비
-python demo_multimodal_fire.py \
+# 전체 뉴스 사용
+python create_multimodal_db_from_images.py \
   --news news_data/01_disaster_Fire_3years.json \
-  --images image_data/fire \
-  --limit 100 \
-  --ratio 0.3
-
-# 2. 멀티모달 컬렉션 생성
-python multimodal_rag_v2.py \
-  --mode create \
+  --images naver_news_images/fire \
   --collection fire_multimodal \
-  --input prepared_fire_news.json \
-  --images fire_image_mappings.json
+  --news-range fire_all
 
-# 3. 텍스트 검색
-python multimodal_rag_v2.py \
-  --mode search \
+# 클러스터된 뉴스만 사용 (추천)
+python create_multimodal_db_from_images.py \
+  --news news_data/01_disaster_Fire_3years.json \
+  --images naver_news_images/fire \
+  --collection fire_multimodal \
+  --news-range fire_clustered \
+  --clustered-csv clustered_news.csv
+```
+
+**2. 텍스트 검색**
+```bash
+python demo_multimodal_fire.py \
+  --mode text \
   --collection fire_multimodal \
   --query "화재 사건" \
   --top-k 5
+```
 
-# 4. 이미지 검색
-python multimodal_rag_v2.py \
-  --mode search-image \
+**3. 이미지 검색**
+```bash
+python demo_multimodal_fire.py \
+  --mode image \
   --collection fire_multimodal \
-  --image image_data/fire/fire1.jpg \
+  --image query_image_data/fire/fire1.jpg \
   --top-k 5
+```
 
-# 5. 하이브리드 검색
-python multimodal_rag_v2.py \
+**4. 하이브리드 검색**
+```bash
+python demo_multimodal_fire.py \
   --mode hybrid \
   --collection fire_multimodal \
-  --query "화재" \
-  --image image_data/fire/fire2.jpg \
+  --query "대형 화재" \
+  --image query_image_data/fire/fire2.jpg \
   --top-k 5
 ```
 
@@ -204,26 +237,14 @@ python milvus_rag_search.py \
   --top-k 5
 ```
 
-### 3️⃣ 이미지 관리
-
-#### 이미지 리네이밍 (fire1.jpg ~ fireN.jpg)
-```bash
-# 미리보기 (실제 변경 없음)
-python rename_images.py --input image_data/fire --dry-run
-
-# 실제 리네이밍 (자동 백업 생성)
-python rename_images.py --input image_data/fire
-
-# 커스텀 설정
-python rename_images.py --input image_data/fire --prefix fire --start 1 --ext .jpg
-```
+### 3️⃣ 이미지 관리 (유틸리티)
 
 #### 수동 이미지 매칭 (대화형 모드)
 ```bash
 # 대화형 모드로 특정 뉴스에 특정 이미지 매칭
 python manual_image_matcher.py \
   --news news_data/01_disaster_Fire_3years.json \
-  --images image_data/fire
+  --images naver_news_images/fire
 
 # 대화형 모드 명령어:
 #   n [검색어]  - 뉴스 목록 보기
@@ -239,36 +260,20 @@ python manual_image_matcher.py \
 ```bash
 # 직접 매칭 추가
 python manual_image_matcher.py \
-  --add "fire_news_001:fire1.jpg" \
-  --add "fire_news_002:fire3.jpg" \
+  --add "202304110010013873784:fire1.jpg" \
+  --add "202304110010013872301:fire3.jpg" \
   --output manual_mappings.json
-
-# 기존 매핑 수정
-python manual_image_matcher.py \
-  --edit manual_mappings.json \
-  --add "fire_news_003:fire5.jpg" \
-  --output manual_mappings_updated.json
 ```
 
 #### 무료 이미지 다운로드
 ```bash
-# 무료 이미지 다운로드
+# Unsplash에서 무료 이미지 다운로드
 python download_free_images.py \
   --source unsplash \
   --api-key YOUR_UNSPLASH_KEY \
   --query "fire disaster emergency" \
-  --output image_data/fire_downloaded \
+  --output naver_news_images/fire_downloaded \
   --limit 20
-
-# 다운로드 후 리네이밍
-python rename_images.py --input image_data/fire_downloaded
-```
-
-#### 기존 컬렉션에 이미지 추가
-```bash
-python add_images_to_milvus.py \
-  --collection fire_news \
-  --images manual_mappings.json
 ```
 
 ---
@@ -278,25 +283,37 @@ python add_images_to_milvus.py \
 ### 멀티모달 RAG 데모
 
 ```bash
-# 전체 데모 실행 (추천)
+# 🌟 원클릭 데모 실행 (추천)
 bash demo_fire_multimodal.sh
 ```
 
-이 데모는 다음을 수행합니다:
-1. 화재 뉴스 데이터 로드
-2. 이미지 랜덤 할당
-3. 멀티모달 컬렉션 생성
-4. 다양한 검색 방법 시연:
-   - 텍스트 검색
-   - 이미지 검색
-   - 하이브리드 검색
+이 데모는 다음을 자동으로 수행합니다:
 
-### 결과 파일
+**1단계: DB 생성**
+- `news_data/01_disaster_Fire_3years.json`에서 뉴스 로드
+- `clustered_news.csv`로 클러스터된 뉴스 필터링
+- `naver_news_images/fire/`의 이미지 자동 매칭 (파일명 = doc_id)
+- 멀티모달 컬렉션 생성
 
-데모 실행 후 생성되는 파일들:
-- `prepared_fire_news.json` - 준비된 뉴스 데이터
-- `fire_image_mappings.json` - 이미지 매핑
-- `multimodal_demo.db` - Milvus 데이터베이스
+**2단계: 검색 시연**
+- 텍스트 검색: "화재 사건", "대형 화재 진압"
+- 이미지 검색: `query_image_data/fire/fire1.jpg`로 검색
+- 하이브리드 검색: 텍스트 + 이미지 결합
+
+### 데모 설정 변경
+
+`demo_fire_multimodal.sh` 파일에서 설정을 변경할 수 있습니다:
+
+```bash
+NEWS_RANGE="fire_clustered"  # fire_all 또는 fire_clustered
+COLLECTION_NAME="fire_multimodal_demo"
+DB_FILE="./fire_multimodal_demo.db"
+```
+
+### 생성되는 파일
+
+데모 실행 후:
+- `fire_multimodal_demo.db` - Milvus Lite 데이터베이스
 
 ---
 
